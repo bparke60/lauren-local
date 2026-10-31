@@ -1,0 +1,148 @@
+:root {
+  color-scheme: dark;
+  --text: #f8f5ff;
+  --muted: #aaa2bd;
+  --line: rgba(163, 111, 255, 0.34);
+  --surface: rgba(12, 8, 22, 0.78);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+.face-stage {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: #05050b;
+}
+
+body {
+  color: var(--text);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+html.embedded,
+body.embedded,
+body.embedded .face-stage {
+  background: transparent;
+}
+
+body.embedded .face-hud,
+body.embedded .face-controls {
+  display: none;
+}
+
+#faceCanvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.media-display {
+  position: fixed;
+  z-index: 4;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #000;
+  cursor: pointer;
+}
+
+.face-hud {
+  z-index: 5;
+  position: fixed;
+  inset: 18px 20px auto;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  pointer-events: none;
+  text-shadow: 0 0 16px #05050b;
+}
+
+.face-hud div {
+  display: grid;
+  gap: 4px;
+}
+
+.face-hud strong {
+  font-size: 0.78rem;
+  letter-spacing: 0;
+}
+
+.face-hud span {
+  color: var(--muted);
+  font-size: 0.7rem;
+  text-transform: capitalize;
+}
+
+.face-controls {
+  z-index: 6;
+  position: fixed;
+  left: 50%;
+  bottom: 18px;
+  display: flex;
+  align-items: end;
+  gap: 8px;
+  width: min(94vw, 560px);
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--surface);
+  padding: 9px;
+  transform: translateX(-50%);
+  transition: opacity 220ms ease, transform 220ms ease;
+  backdrop-filter: blur(14px);
+}
+
+.face-controls.quiet {
+  opacity: 0;
+  transform: translate(-50%, 10px);
+  pointer-events: none;
+}
+
+.face-controls label {
+  display: grid;
+  flex: 1;
+  gap: 4px;
+  color: var(--muted);
+  font-size: 0.65rem;
+}
+
+select,
+button {
+  min-width: 0;
+  min-height: 38px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #151020;
+  color: var(--text);
+  padding: 0 10px;
+  font: inherit;
+  letter-spacing: 0;
+}
+
+button {
+  cursor: pointer;
+}
+
+@media (max-width: 520px) {
+  .face-controls {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .face-controls button {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .face-controls {
+    transition: none;
+  }
+}

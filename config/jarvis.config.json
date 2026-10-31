@@ -1,0 +1,162 @@
+{
+  "assistant": {
+    "name": "Lauren",
+    "ownerName": "BJ",
+    "mode": "local",
+    "wakePhrases": [
+      "lauren",
+      "hey lauren"
+    ],
+    "responseTargetMs": 5000
+  },
+  "cloud": {
+    "enabled": false,
+    "monthlyBudgetUsd": 0,
+    "requireApproval": false,
+    "hardStopAtBudget": true,
+    "warnAtUsd": 10,
+    "providers": {
+      "openai": {
+        "enabled": false,
+        "model": "gpt-4.1",
+        "visionDetail": "low",
+        "estimatedPricingPerMillionTokens": {
+          "input": 2.0,
+          "output": 8.0
+        },
+        "estimatedPricing": {
+          "webSearchCallUsd": 0.01,
+          "lowQualityImageUsd": 0.006
+        },
+        "features": {
+          "brain": true,
+          "vision": true,
+          "realtimeVoice": false,
+          "webSearch": true,
+          "imageGeneration": true,
+          "videoGeneration": false,
+          "macActions": true
+        }
+      }
+    }
+  },
+  "vision": {
+    "cameraDevice": "browser_default",
+    "passiveLabels": true,
+    "gestureTrigger": true,
+    "motionSensitivity": 24,
+    "analysisCooldownMs": 3500,
+    "cloudSceneAnalysis": false
+  },
+  "voice": {
+    "speechInput": true,
+    "speechOutput": true,
+    "nativeMacVoice": {
+      "enabled": false,
+      "scope": "mac_device_only",
+      "label": "Voice 2",
+      "name": "Nicky (Enhanced)",
+      "identifier": "com.apple.ttsbundle.siri_Nicky_en-US_premium",
+      "rate": 185
+    },
+    "deviceRouting": {
+      "strategy": "device_local",
+      "fallback": "browser_system_voice",
+      "sharedPortableVoice": "planned"
+    },
+    "browserSpeechRecognition": false,
+    "browserSpeechSynthesis": false,
+    "preferredVoiceGender": "female",
+    "preferredVoiceNames": [
+      "Siri Voice 2",
+      "Voice 2",
+      "Samantha",
+      "Victoria",
+      "Ava",
+      "Karen",
+      "Susan",
+      "Zira"
+    ],
+    "targetStyle": "natural_warm_feminine",
+    "hybridCloudVoicePlanned": true,
+    "localService": {
+      "enabled": true,
+      "engine": "kokoro",
+      "port": 4318,
+      "defaultVoice": "af_heart",
+      "note": "Free local neural voice. Runs on this Mac, started automatically by src/server.js."
+    },
+    "elevenlabs": {
+      "enabled": false,
+      "modelId": "eleven_turbo_v2_5",
+      "defaultVoiceId": "fLQhkOW7F9KVKAjYCbhr",
+      "note": "Exclusive voice when ELEVENLABS_API_KEY is set in .env.local. No fallback voices by BJ request."
+    }
+  },
+  "memory": {
+    "suggestions": true,
+    "requireApproval": true,
+    "localHeuristics": true
+  },
+  "devices": [
+    {
+      "id": "macbook",
+      "label": "MacBook Core",
+      "type": "core",
+      "status": "online"
+    },
+    {
+      "id": "gopro",
+      "label": "GoPro Camera",
+      "type": "camera",
+      "status": "not_connected"
+    },
+    {
+      "id": "robot",
+      "label": "Robot Body",
+      "type": "robot",
+      "status": "simulated"
+    },
+    {
+      "id": "projector_face",
+      "label": "Projector Face",
+      "type": "display",
+      "status": "this_screen"
+    },
+    {
+      "id": "glasses",
+      "label": "Smart Glasses",
+      "type": "wearable",
+      "status": "planned"
+    },
+    {
+      "id": "drone",
+      "label": "Toy Drone",
+      "type": "drone",
+      "status": "locked"
+    }
+  ],
+  "safety": {
+    "dangerousActionsRequireApproval": true,
+    "droneActionsRequireApproval": true,
+    "spendMoneyRequireApproval": true,
+    "deleteFilesRequireApproval": true
+  },
+  "conversation": {
+    "listeningMode": "while_powered_on",
+    "note": "When Lauren is on, she continuously accepts complete utterances without requiring a wake phrase. Camera vision remains separately controlled."
+  },
+  "local": {
+    "baseUrl": "http://127.0.0.1:5321/v1",
+    "model": "qwen/qwen3.5-9b",
+    "networkEnabled": false,
+    "features": {
+      "brain": true,
+      "vision": true,
+      "webSearch": true,
+      "imageGeneration": false,
+      "macActions": false,
+      "videoGeneration": false
+    }
+  }
+}

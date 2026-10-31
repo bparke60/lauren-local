@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Lauren</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="app-header">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <h1 id="assistantName">Lauren</h1>
+        </div>
+        <div class="header-actions">
+          <span class="cloud-usage" id="cloudLock" title="Brain and memory run on this Mac">Local AI</span>
+          <button id="powerToggle" class="power-toggle" type="button" aria-pressed="false">Off</button>
+          <span id="powerState" class="visually-hidden">Off</span>
+        </div>
+      </header>
+
+      <nav class="view-tabs" role="tablist" aria-label="Lauren views">
+        <button class="view-tab active" type="button" role="tab" aria-selected="true" data-view-target="chat">Lauren</button>
+        <button class="view-tab" type="button" role="tab" aria-selected="false" data-view-target="settings">Settings</button>
+        <a class="view-tab" href="/tasks.html">Tasks &amp; lists</a>
+      </nav>
+
+      <section class="workspace">
+        <section class="view-panel chat-view" data-view-panel="chat" role="tabpanel">
+          <div class="presence-stage" id="presenceStage">
+            <iframe
+              class="face face-embed"
+              id="face"
+              src="/face?embed=1"
+              title="Lauren live animated face"
+            ></iframe>
+            <div class="camera-pip" id="cameraPip" hidden>
+              <video id="camera" autoplay playsinline muted></video>
+              <canvas id="detectionOverlay" class="detection-overlay"></canvas>
+              <button id="swapView" type="button">Swap</button>
+            </div>
+            <figure class="stage-media" id="generatedMedia" hidden>
+              <img id="generatedImage" alt="Image shared by Lauren" hidden>
+              <iframe
+                id="sharedVideo"
+                title="Video shared by Lauren"
+                allow="autoplay; encrypted-media; picture-in-picture"
+                allowfullscreen
+                hidden
+              ></iframe>
+              <div class="media-loading" id="mediaLoading" role="status" aria-live="polite" hidden>
+                <div class="media-loader-visual" aria-hidden="true">
+                  <span></span><span></span><span></span>
+                </div>
+                <strong id="mediaLoadingTitle">Creating image</strong>
+                <p id="mediaLoadingPrompt"></p>
+                <small id="mediaLoadingTime">Starting...</small>
+              </div>
+              <figcaption id="generatedCaption"></figcaption>
+              <button id="closeGeneratedMedia" type="button" aria-label="Close shared media">Close</button>
+            </figure>
+            <canvas id="analysisCanvas" hidden></canvas>
+            <div class="stage-tools">
+              <button id="clearChat" type="button">Clear</button>
+              <button id="startCamera" type="button">Camera</button>
+              <button id="faceFullscreen" type="button">Full screen</button>
+            </div>
+          </div>
+
+          <div class="response" aria-live="polite">
+            <p id="statusText">Booting local core...</p>
+            <div class="source-links" id="sourceLinks" hidden></div>
+          </div>
+
+          <div class="command-row">
+            <input id="commandInput" type="text" autocomplete="off" placeholder="Message Lauren" aria-label="Message Lauren">
+            <button id="sendCommand" class="primary-action" type="button">Send</button>
+            <button id="listenButton" type="button">Listen</button>
+          </div>
+          <p class="mic-note" id="micHelp"></p>
+          <div class="memory-suggestion" id="memorySuggestion" hidden>
+            <p><span>Suggested memory</span><strong id="memorySuggestionText"></strong></p>
+            <div>
+              <button id="dismissMemorySuggestion" type="button">Dismiss</button>
+              <button id="saveMemorySuggestion" class="primary-action" type="button">Remember</button>
+            </div>
+          </div>
+          <div class="action-approval" id="actionApproval" hidden>
+            <div>
+              <span>Approval required</span>
+              <strong id="actionTitle"></strong>
+              <p id="actionDescription"></p>
+            </div>
+            <div class="action-buttons">
+              <button id="denyAction" type="button">Deny</button>
+              <button id="approveAction" class="primary-action" type="button">Approve</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="view-panel settings-view" data-view-panel="settings" role="tabpanel" hidden>
+          <div class="section-heading">
+            <div>
+              <p class="section-kicker">Settings</p>
+              <h2>Lauren and her devices</h2>
+            </div>
+          </div>
+          <section class="settings-section">
+            <div class="section-heading compact-heading">
+              <div>
+                <p class="section-kicker">Memory</p>
+                <h2>What Lauren knows <span id="memoryCount" class="memory-count"></span></h2>
+              </div>
+            </div>
+            <form id="memoryForm" class="memory-form">
+              <input id="memoryInput" type="text" placeholder="Teach Lauren something" aria-label="Teach Lauren something">
+              <button class="primary-action" type="submit">Remember</button>
+              <span id="memorySaved" class="memory-saved" hidden>Saved.</span>
+            </form>
+            <ul id="memoryList" class="memory-list"></ul>
+          </section>
+
+          <section class="settings-section">
+            <div class="section-heading compact-heading">
+              <div>
+                <p class="section-kicker">Voice</p>
+                <h2>Output voice</h2>
+              </div>
+            </div>
+            <div class="voice-setting">
+              <div>
+                <strong>Lauren's voice</strong>
+                <span>Local Kokoro voice · preview before choosing</span>
+              </div>
+              <select id="laurenVoiceSelect" aria-label="Select Lauren's voice"></select>
+              <button id="previewLaurenVoice" type="button">Test</button>
+            </div>
+            <div hidden><select id="voiceSelect"></select><button id="previewVoice" type="button">Test</button></div>
+          </section>
+
+          <section class="settings-section">
+            <div class="section-heading compact-heading">
+              <div>
+                <p class="section-kicker">Conversations</p>
+                <h2>Past chats</h2>
+              </div>
+            </div>
+            <ul id="conversationList" class="memory-list conversation-list"></ul>
+          </section>
+
+          <section class="settings-section">
+            <div class="section-heading compact-heading">
+              <div>
+                <p class="section-kicker">Devices</p>
+                <h2>Body links</h2>
+              </div>
+            </div>
+            <div id="deviceGrid" class="device-grid"></div>
+          </section>
+
+          <section class="settings-section">
+            <div class="section-heading compact-heading">
+              <div>
+                <p class="section-kicker">Core</p>
+                <h2>System health</h2>
+              </div>
+            </div>
+            <div class="capability-row" id="capabilityRow"></div>
+            <dl class="health-grid" id="healthGrid"></dl>
+          </section>
+        </section>
+      </section>
+    </main>
+
+    <div id="toastContainer" class="toast-container" aria-live="assertive" aria-atomic="false"></div>
+
+    <script type="module">
+      try {
+        const { HandLandmarker, ObjectDetector, FilesetResolver } = await import(
+          "/vendor/tasks-vision/vision_bundle.mjs"
+        );
+        window.LaurenHandLandmarker = HandLandmarker;
+        window.LaurenObjectDetector = ObjectDetector;
+        window.LaurenFilesetResolver = FilesetResolver;
+      } catch {
+        /* MediaPipe unavailable — finger counting and live object detection
+           fall back to cloud vision */
+      }
+    </script>
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>

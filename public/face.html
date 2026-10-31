@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#05050b">
+    <title>Lauren Face</title>
+    <link rel="stylesheet" href="/face.css">
+  </head>
+  <body>
+    <main class="face-stage" aria-label="Lauren animated face display">
+      <canvas id="faceCanvas"></canvas>
+      <img id="mediaDisplay" class="media-display" alt="Media displayed by Lauren" hidden>
+      <div class="face-hud">
+        <div>
+          <strong>LAUREN</strong>
+          <span id="connectionState">Connecting</span>
+        </div>
+        <span id="faceState">Idle · Calm</span>
+      </div>
+      <div class="face-controls" id="faceControls">
+        <label>
+          Emotion
+          <select id="emotionSelect">
+            <option value="calm">Calm</option>
+            <option value="warm">Warm</option>
+            <option value="joy">Joy</option>
+            <option value="curious">Curious</option>
+            <option value="focused">Focused</option>
+            <option value="surprised">Surprised</option>
+            <option value="sad">Sad</option>
+            <option value="angry">Angry</option>
+            <option value="confident">Confident</option>
+          </select>
+        </label>
+        <label>
+          Mode
+          <select id="modeSelect">
+            <option value="idle">Idle</option>
+            <option value="listening">Listening</option>
+            <option value="thinking">Thinking</option>
+            <option value="speaking">Speaking</option>
+            <option value="sleeping">Sleeping</option>
+          </select>
+        </label>
+        <button id="fullscreenButton" type="button">Full screen</button>
+      </div>
+    </main>
+    <script type="module" src="/face.js"></script>
+  </body>
+</html>

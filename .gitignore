@@ -1,0 +1,15 @@
+.DS_Store
+.env
+.env.*
+.local/
+data/
+node_modules/
+Lauren.app/
+voice-service/.venv/
+voice-service/__pycache__/
+voice-service/*.wav
+voice-service/*.log
+public/generated/
+work/
+
+public/vendor/

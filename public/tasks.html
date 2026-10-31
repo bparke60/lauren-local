@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Lauren · Workspace</title>
+    <link rel="stylesheet" href="/tasks.css" />
+  </head>
+  <body>
+    <header>
+      <a class="brand" href="/">Lauren<span>LOCAL COMPANION</span></a>
+      <nav>
+        <a href="/">Face & chat</a><a href="/companion.html">Compact view</a>
+      </nav>
+      <span id="connection">Connecting…</span>
+    </header>
+    <main>
+      <section class="intro">
+        <p class="eyebrow">YOUR QUIET HEAD START</p>
+        <h1>A little help.<br />A little more room to think.</h1>
+        <p>Leave a task with Lauren. Come back to something useful.</p>
+      </section>
+      <div class="grid">
+        <section class="card">
+          <div class="card-top">
+            <h2>Leave it with me</h2>
+            <span class="pill">ON THIS MAC</span>
+          </div>
+          <form id="taskForm">
+            <label for="prompt">What would you like done?</label
+            ><textarea
+              id="prompt"
+              required
+              maxlength="6000"
+              placeholder="Create a study checklist for my next machine learning project…"
+            ></textarea
+            ><label for="dueAt">When?</label
+            ><input id="dueAt" type="datetime-local" /><small
+              >Leave blank to run next. Scheduled work runs while this Mac is
+              awake and Lauren is running. Missed tasks run when she
+              returns.</small
+            ><label class="check"
+              ><input id="taskNetwork" type="checkbox" /> Allow internet
+              research for this task</label
+            ><button type="submit">Add task <span>↗</span></button>
+            <p id="message" role="status"></p>
+          </form>
+        </section>
+        <section class="card engine">
+          <p class="eyebrow">HER ENGINE</p>
+          <h2 id="model">Local model</h2>
+          <p>
+            Thinking and memory stay on your laptop. Research connects to public
+            websites only when enabled.
+          </p>
+          <label for="modelChoice">Choose her model</label
+          ><select id="modelChoice">
+            <option value="qwen/qwen3.5-9b">
+              Qwen3.5 9B · lighter everyday model
+            </option>
+            <option value="qwen/qwen3.8-27b">
+              Qwen3.8 27B · larger, slower model
+            </option>
+            <option value="google/gemma-4-e2b">
+              Gemma 4 E2B · smallest model
+            </option></select
+          ><button id="switchModel" type="button">Switch model</button
+          ><label class="check"
+            ><input id="network" type="checkbox" /> Enable web research in
+            chat</label
+          >
+          <div class="rule"></div>
+          <p>
+            Tasks can create reports and save lists. They cannot send messages,
+            buy things, publish code, or run commands.
+          </p>
+          <small
+            >Voice uses a local model. Internet search may be rate limited;
+            source URLs work directly. No cloud AI fallback.</small
+          >
+        </section>
+      </div>
+      <section class="collection">
+        <div class="section-title">
+          <h2>On her desk</h2>
+          <span id="jobCount"></span>
+        </div>
+        <div id="jobs" class="jobs"></div>
+      </section>
+      <section class="collection">
+        <div class="section-title">
+          <h2>Your lists</h2>
+          <span>Saved locally</span>
+        </div>
+        <div id="lists" class="list-grid"></div>
+      </section>
+      <details class="metrics">
+        <summary>Model performance · measured on this Mac</summary>
+        <div id="runs"></div>
+      </details>
+    </main>
+    <script type="module" src="/tasks.js"></script>
+  </body>
+</html>
