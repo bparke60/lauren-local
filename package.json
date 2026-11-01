@@ -1,14 +1,15 @@
 {
   "name": "lauren-local",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "description": "A local desktop AI companion with persistent tasks, research and an animated face.",
   "type": "module",
   "scripts": {
     "start": "node src/server.js",
     "test": "node --test",
-    "check": "node --check src/server.js && node --check src/local-core.js && node --check public/app.js && node --check public/tasks.js",
-    "build:mac": "bash scripts/build-mac.sh"
+    "check": "node --check src/server.js && node --check src/local-core.js && node --check public/app.js && node --check public/tasks.js && node --check public/companion.js && node --check public/presence-utils.js && node --check src/capsule.js",
+    "build:mac": "bash scripts/build-mac.sh",
+    "test:mac": "bash scripts/test-mac.sh"
   },
   "engines": {
     "node": ">=24.0.0"

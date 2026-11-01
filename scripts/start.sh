@@ -6,6 +6,10 @@ if curl --silent --max-time 2 http://127.0.0.1:4327/api/health >/dev/null; then
   echo "Lauren is already running on port 4327."
   exit 0
 fi
+if [ -f .local/data-home ]; then
+  LAUREN_DATA_DIR="$(cat .local/data-home)"
+  export LAUREN_DATA_DIR
+fi
 if [ -f .local/voice-python ]; then
   LAUREN_VOICE_PYTHON="$(cat .local/voice-python)"
   export LAUREN_VOICE_PYTHON

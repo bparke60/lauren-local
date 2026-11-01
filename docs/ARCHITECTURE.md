@@ -15,7 +15,7 @@ flowchart LR
 
 ## Responsibilities
 
-The native AppKit/WKWebView shell owns the movable window, menu bar lifecycle, and explicit microphone capture. HTML clients own Lauren's animation and result presentation. Node owns API validation, history, memory, local model requests, and tool execution. LM Studio owns model loading and inference. Model weights do not contain Lauren's live memory; memory is supplied as context.
+The native AppKit/WKWebView shell owns a transparent borderless panel, screen-constrained movement, drag/release physics, alpha-based click-through behavior, menu bar lifecycle, and explicit on-device microphone capture. The renderer uses an original cartoon sprite atlas with pose selection driven by activity. HTML clients own Lauren's animation and result presentation. Node owns API validation, history, memory, local model requests, and tool execution. LM Studio owns model loading and inference. Model weights do not contain Lauren's live memory; memory is supplied as context.
 
 `src/local-core.js` contains the model adapter, task scheduler, research tools, SQLite storage, and bounded agent loop. `src/server.js` integrates it with the existing face/camera prototype and local speech service. The older media/device/action scaffolding remains experimental; it is not exposed as an autonomous model tool.
 
@@ -37,3 +37,11 @@ Lists, jobs, and run metrics live in `data/lauren.sqlite`, using WAL mode. Conve
 ## Why keep LM Studio?
 
 LM Studio is the model-serving layer, not Lauren's identity or UI. The installed MLX models already work on this Mac, and the API supports tool calls. A future Ollama or llama.cpp adapter can use the same application boundaries; a migration is only useful after measuring a concrete benefit. LM Studio also documents headless operation through llmster: https://lmstudio.ai/docs/developer/core/headless.
+
+## Presence and portable state (0.3)
+
+`native/PresenceMotion.swift` is the deterministic motion core. The AppKit timer applies it to the panel and pauses wandering during conversation, menus, or reduced-motion mode. The JavaScript renderer reports its visible pixel hit map through the native bridge so transparent areas do not block other apps. The panel does not activate the front application on launch.
+
+Speech is explicit and time-limited. A conversation ends its capture after a brief pause, then submits one utterance. A generation token prevents cancelled recognition callbacks from sending duplicate messages. No browser cloud speech recognizer is used.
+
+`LAUREN_DATA_DIR` separates assistant state from the app checkout. `src/capsule.js` exports approved JSON data and a consistent SQLite snapshot. Import accepts only the supported state files, verifies hashes, and requires an empty folder. Native Export delegates to a fixed local script after a user selects the destination. The assistant's language model has no capsule export tool.

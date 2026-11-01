@@ -1,48 +1,55 @@
 # Lauren Local
 
-<img src="docs/images/companion.png" alt="Lauren running in a small desktop companion window" width="360">
+<img src="docs/images/companion-v3.png" alt="Lauren as a transparent cartoon desktop spirit" width="300">
 
-A personal AI companion that lives in a small, movable Mac window. Her animated face, conversations, memory, task queue, and model inference run on your laptop. LM Studio serves the model behind the scenes; Lauren has her own application and workspace.
+Lauren is a local AI companion that wanders around your Mac as a small 2D character. There is no permanent chat box, window frame, or opaque panel. Her purple-haired, brown-skinned cartoon design keeps the original Lauren identity while adding an expressive full-body sprite set.
 
-Built by BJ Parker while studying for a Bachelor of Science in Artificial Intelligence at UNC Charlotte. This project explores the engineering around a local model: tool execution, persistence, speech, scheduling, user interface, and measurement.
+Built by BJ Parker while studying for a Bachelor of Science in Artificial Intelligence at UNC Charlotte. The project explores local model inference, desktop presence, tool execution, persistence, speech, scheduling, and portable assistant state.
 
-## What runs today
+## Desktop presence
 
-- A native macOS menu bar app with a resizable, floating companion window and the original Lauren face.
-- Local conversation through LM Studio's loopback API, with no paid cloud AI fallback.
-- Persistent conversations and approved memory notes, plus SQLite lists, jobs, and measured run history.
-- A bounded tool loop that can read saved lists, create lists, research public webpages, and schedule one-time tasks.
-- Background jobs with explicit offline/online settings, saved reports, cancellation of queued work, and retry after failures.
-- A separate workspace for reviewing results, switching installed models, and inspecting timings.
-- Local Kokoro speech output, muted initially. No surprise alternate voice if synthesis fails.
-- Push-to-talk transcription in the native companion using Apple's on-device English recognizer. If on-device recognition is unavailable, typing remains available and cloud speech is not used.
+- **Drift and bounce:** borderless, transparent, floating overlay with gentle wandering, edge reflection, and drag-and-release movement. Transparent pixels let clicks reach the apps underneath.
+- **Cartoon poses:** resting, looking around, sleeping, happy, bashful, startled, smirking, peeking, playing with an orb, working at a tiny laptop, and tumbling when dragged. These are pose changes plus movement, not a fully rigged walk cycle.
+- **Face or body:** choose Automatic, Full body, or Floating face in the menu. Automatic moves to a close-up for conversation and a resting head when the pointer has been quiet. Mouse activity timing stays inside the renderer; it is not conversation or model data.
+- **Click to talk:** on-device English speech recognition starts after an explicit click. After about 1.6 seconds of silence, the recognized utterance goes to the local model and Lauren speaks through Kokoro. Hovering and petting never start the microphone.
+- **Quiet controls:** right-click Lauren, or use the menu bar icon, for movement, voice, tasks, an occasional typed message, and a travel capsule. Captions appear temporarily when needed.
+- **Reduced motion:** the macOS accessibility preference pauses wandering and ambient animation.
 
-This is a working prototype. It is not an unrestricted computer agent. Its tools cannot send messages, publish, spend money, delete files, or execute shell commands. The model switcher invokes only fixed LM Studio CLI commands for the three supported model IDs.
+The local core retains saved conversations, approved memory, SQLite lists, one-time background jobs, optional public-web research, model switching, and run timings. Its model tools cannot send messages, publish, buy things, delete files, or execute shell commands.
 
 ## Quick start
 
-Requirements: Apple Silicon Mac, LM Studio with a downloaded model, Node.js 24 or newer. The native wrapper also requires Xcode Command Line Tools.
+Requirements: Apple Silicon Mac, LM Studio with a downloaded model, Node.js 24 or newer, and Xcode Command Line Tools to build the native shell.
 
-1. Enable LM Studio's local server on **port 5321**. Keep it bound to `127.0.0.1`.
-2. Download or select `qwen/qwen3.5-9b` (default). The workspace also supports `qwen/qwen3.8-27b` and `google/gemma-4-e2b` when installed.
-3. Run:
-
-```sh
-npm start
-```
-
-Open `http://127.0.0.1:4327/companion.html` for the compact view or `http://127.0.0.1:4327/tasks.html` for tasks. The original full-screen face and camera prototype is available at `/`.
-
-To build the native Mac app:
+1. Enable LM Studio's loopback server on **port 5321**.
+2. Download or select `qwen/qwen3.5-9b` (default). The workspace also supports the installed `qwen/qwen3.8-27b` and `google/gemma-4-e2b` models.
+3. Build and launch:
 
 ```sh
 npm run build:mac
 open Lauren.app
 ```
 
-Keep `Lauren.app` in the project folder beside `src/` and `scripts/`. It starts the local server. Closing the window hides it; the menu bar keeps the app alive. **Quit Lauren** stops the server if the app started it. If another server was already running, the app reuses it.
+Keep `Lauren.app` beside `src/` and `scripts/`. It starts the local core. The menu bar keeps the app running if the character is hidden. Quit stops the core if this app started it. A pre-existing core is reused.
 
-The app is signed ad hoc for local development. This is not a notarized distribution build. Speech permission prompts appear only when you tap Mic; microphone capture is time-limited, and the transcript stays in the input box for review before you send it.
+Use **Open tasks & lists** from Lauren's menu or visit `http://127.0.0.1:4327/tasks.html`. The browser preview at `/companion.html` shows the character, but moving across the actual desktop and on-device microphone capture require the native app. The previous full-screen camera prototype remains available at `/` as a separate legacy display.
+
+The app is signed ad hoc for development, rather than notarized for distribution. Speech and microphone permission are requested only when you start a conversation; there is no automatic microphone activation on launch or hover. Availability of Apple's on-device speech recognizer varies by Mac setup. A typed-message option remains in the menu if speech is unavailable.
+
+## Portable assistant state
+
+Choose **Export travel capsule…** and select a folder, including a mounted USB drive. A `.lauren.json` capsule contains approved memory, conversations, and a consistent SQLite snapshot of lists, jobs, and run history. It excludes API credentials, host-specific configuration, model weights, and logs.
+
+On another compatible host:
+
+```sh
+node scripts/capsule.mjs import /path/Lauren.lauren.json /empty/LaurenMemory
+LAUREN_DATA_DIR=/empty/LaurenMemory npm start
+```
+
+Import requires an empty destination and validates file names and hashes before writing. A task running during export appears as interrupted on the receiving core, requiring review and retry. Use one active core at a time; a capsule is a snapshot, not live synchronization.
+
+A USB drive carries her state. It does not make an arbitrary phone, robot, television, or microcontroller able to run a language model. Each target needs a compatible client/runtime and enough compute, or a connection to an always-on local model host. See [portable architecture](docs/PORTABLE_CORE.md).
 
 ## Choosing a model on a 24 GB Mac
 
@@ -60,7 +67,7 @@ voice-service/.venv/bin/pip install kokoro soundfile
 brew install espeak-ng
 ```
 
-Download/cache the `hexgrad/Kokoro-82M` model and chosen voice once with an internet connection before running Lauren in offline mode. The server starts the voice process with `HF_HUB_OFFLINE=1` and `TRANSFORMERS_OFFLINE=1`; missing assets produce a visible text-only state. No cloud TTS or browser voice fallback is used. Turn **Voice on** in the companion after previewing the voice. The default is Kokoro `af_heart`; it is a different voice from the previous cloud version.
+Download/cache the `hexgrad/Kokoro-82M` model and chosen voice once with an internet connection before running Lauren in offline mode. The server starts the voice process with `HF_HUB_OFFLINE=1` and `TRANSFORMERS_OFFLINE=1`; missing assets produce a visible text-only state. No cloud TTS or browser voice fallback is used. Use **Speak replies locally** in the companion menu to enable or mute speech. The default is Kokoro `af_heart`; it is a different voice from the previous cloud version.
 
 ## Research and background work
 
@@ -75,10 +82,12 @@ Jobs run only while the Mac is awake and the server is running. Missed queued ta
 ```sh
 npm run check
 npm test
+npm run test:mac
 ```
 
 The JavaScript core uses Node built-ins and has no npm runtime dependencies. The full-screen camera prototype uses self-hosted MediaPipe assets; run `bash scripts/setup-vision.sh` once to download them on a fresh clone. They are already installed on the development machine and are excluded from Git. See [third-party notices](THIRD_PARTY_NOTICES.md). Models and voice weights are separate downloads governed by their own licenses.
 
+- [Cartoon art direction and exact generation prompt](docs/ART_DIRECTION.md)
 - [Architecture and data boundaries](docs/ARCHITECTURE.md)
 - [Validation and limitations](docs/VALIDATION.md)
 - [Portfolio and next milestones](docs/PORTFOLIO.md)

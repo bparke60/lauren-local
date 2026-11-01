@@ -13,3 +13,5 @@ public/generated/
 work/
 
 public/vendor/
+
+*.lauren.json

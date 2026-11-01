@@ -20,15 +20,18 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const rootDir = path.resolve(__dirname, "..");
 const publicDir = path.join(rootDir, "public");
+const dataDir = path.resolve(
+  process.env.LAUREN_DATA_DIR || path.join(rootDir, "data"),
+);
 const generatedDir = path.join(publicDir, "generated");
 const configPath = path.join(rootDir, "config", "jarvis.config.json");
-const memoryPath = path.join(rootDir, "data", "memory.json");
-const usagePath = path.join(rootDir, "data", "usage.json");
-const eventsPath = path.join(rootDir, "data", "events.json");
-const devicesPath = path.join(rootDir, "data", "devices.json");
-const conversationsPath = path.join(rootDir, "data", "conversations.json");
-const actionsPath = path.join(rootDir, "data", "actions.json");
-const errorsPath = path.join(rootDir, "data", "errors.json");
+const memoryPath = path.join(dataDir, "memory.json");
+const usagePath = path.join(dataDir, "usage.json");
+const eventsPath = path.join(dataDir, "events.json");
+const devicesPath = path.join(dataDir, "devices.json");
+const conversationsPath = path.join(dataDir, "conversations.json");
+const actionsPath = path.join(dataDir, "actions.json");
+const errorsPath = path.join(dataDir, "errors.json");
 const envPath = path.join(rootDir, ".env.local");
 const port = Number(process.env.PORT || 4327);
 const host = "127.0.0.1";
@@ -324,8 +327,8 @@ function formatTimestamp(iso) {
   });
 }
 
-await mkdir(path.join(rootDir, "data"), { recursive: true });
-const store = new Store(path.join(rootDir, "data", "lauren.sqlite"));
+await mkdir(dataDir, { recursive: true });
+const store = new Store(path.join(dataDir, "lauren.sqlite"));
 const brain = new LocalBrain({
   store,
   config: () => readJson(configPath, {}),

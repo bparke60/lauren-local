@@ -3,127 +3,37 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Lauren</title>
-    <style>
-      * {
-        box-sizing: border-box;
-      }
-      body {
-        margin: 0;
-        background: #10131a;
-        color: #e7e9ed;
-        font:
-          13px -apple-system,
-          BlinkMacSystemFont,
-          sans-serif;
-        height: 100vh;
-        display: flex;
-        flex-direction: column;
-      }
-      header {
-        padding: 12px 16px;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-      }
-      header strong {
-        font:
-          22px Georgia,
-          serif;
-      }
-      header small {
-        font-size: 9px;
-        letter-spacing: 1px;
-        color: #8fa79d;
-      }
-      header a {
-        color: #c7d9d1;
-        margin-left: auto;
-        font-size: 11px;
-        text-decoration: none;
-      }
-      iframe {
-        border: 0;
-        width: 100%;
-        flex: 1;
-        min-height: 100px;
-        background: black;
-      }
-      #answer {
-        padding: 14px 18px;
-        max-height: 135px;
-        overflow: auto;
-        line-height: 1.6;
-        white-space: pre-wrap;
-        margin: 0;
-        color: #cfd8d5;
-      }
-      form {
-        display: flex;
-        gap: 6px;
-        padding: 12px;
-      }
-      input {
-        min-width: 0;
-        flex: 1;
-        background: #202730;
-        border: 1px solid #3c464d;
-        border-radius: 9px;
-        padding: 10px;
-        color: white;
-        font:
-          13px -apple-system,
-          sans-serif;
-      }
-      button {
-        background: #a6c9b4;
-        color: #15271e;
-        border: 0;
-        border-radius: 9px;
-        padding: 10px;
-        cursor: pointer;
-      }
-      button:disabled {
-        opacity: 0.5;
-      }
-      footer {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0 14px 12px;
-        font-size: 10px;
-        color: #82998d;
-      }
-      footer button {
-        background: transparent;
-        color: #a6c9b4;
-        padding: 3px;
-      }
-      #mic[hidden] {
-        display: none;
-      }
-    </style>
+    <title>Lauren · Desktop spirit</title>
+    <link rel="stylesheet" href="/companion.css" />
   </head>
   <body>
-    <header>
-      <strong>Lauren</strong><small>HERE WITH YOU</small
-      ><a href="/tasks.html" target="_blank">Workspace ↗</a>
-    </header>
-    <iframe src="/face?embed=1" title="Lauren’s animated face"></iframe>
-    <p id="answer" role="status">Hey BJ. What’s on your mind?</p>
-    <form>
-      <input
-        id="input"
-        aria-label="Message Lauren"
-        autocomplete="off"
-        placeholder="Talk to Lauren…"
-      /><button id="mic" type="button" hidden>Mic</button
-      ><button id="send">↑</button>
-    </form>
-    <footer>
-      <span id="state">Local brain · this Mac</span
-      ><button id="voice" type="button">Voice off</button>
-    </footer>
+    <main id="presence" data-state="idle" data-form="body">
+      <aside id="bubble" role="status" aria-live="polite" hidden>
+        <p id="caption"></p>
+        <button
+          id="dismiss"
+          type="button"
+          aria-label="Dismiss Lauren’s caption"
+        >
+          ×
+        </button>
+      </aside>
+      <button
+        id="character"
+        type="button"
+        aria-label="Lauren — click to talk, drag to move, right-click for options"
+      >
+        <canvas id="sprite" width="660" height="814" aria-hidden="true"></canvas
+        ><span id="signal" aria-hidden="true"><i></i><i></i><i></i></span>
+      </button>
+      <span id="hint" hidden>Click to talk · drag to move</span>
+    </main>
+    <menu id="browserMenu" hidden>
+      <button type="button" data-action="listen">Talk to Lauren</button
+      ><button type="button" data-action="form">Change face / body</button
+      ><button type="button" data-action="voice">Voice replies on / off</button
+      ><a href="/tasks.html" target="_blank">Tasks &amp; lists ↗</a>
+    </menu>
     <script type="module" src="/companion.js"></script>
   </body>
 </html>

@@ -13,3 +13,11 @@ Development host: M4 MacBook Air, 24 GB memory, macOS 26.5.1, Node 26.3.1, LM St
 - Real Qwen3.8 27B tool call saved a two-item list and returned its confirmation in 78.1 seconds with 8K context and one slot. The earlier 32K/four-slot load caused high memory pressure during a longer prompt and was reduced.
 
 On-device microphone recognition is implemented but has not been verified with the user's spoken input. Local camera model inference in the inherited full-screen prototype has not been validated in this migration. Background model output remains probabilistic and requires review; passing unit tests does not establish research accuracy.
+
+## November 1, 2026 — cartoon presence and travel capsule
+
+- `npm test`: 51 checks pass, including a capsule round trip preserving approved memory and SQLite lists; interrupted task recovery on another data home; invalid capsule rejection; a real API write isolated by `LAUREN_DATA_DIR`; and cartoon form/pose selection and crop bounds.
+- Native motion checks cover screen reflection, containment, release-speed limits, and bounded time steps after a long pause.
+- The updated app compiles and signs locally. Its transparent borderless window and cartoon body are visible; the native context menu opens and changes between body and face modes.
+- Speech now submits after a pause rather than requiring a text-box Send button. User microphone permission and a real spoken utterance remain a hands-on verification step; local synthesis was verified in the earlier build.
+- The cartoon atlas is original generated art guided by the user's supplied style reference. This version switches poses and animates the overall sprite; fully rigged limb animation and OS-window perching are future work.

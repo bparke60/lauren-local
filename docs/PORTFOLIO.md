@@ -23,7 +23,7 @@ Do not describe this as training a foundation model or inventing Qwen. The engin
 
 1. **Evaluation dataset:** version realistic tasks, evaluate list persistence and source support, and measure median/p95 latency rather than relying on one run.
 2. **Research quality:** pluggable search provider, source-date extraction, citations tied to claims, and a reviewed research report format.
-3. **Desktop presence:** transparent sprite mode, docking and idle movement, accessibility labels, keyboard shortcut, and a signed/notarized app package. Keep face identity consistent while improving rendering.
+3. **Desktop presence:** transparent cartoon presence, drift/bounce, face/body modes, and interaction poses are implemented. Next: more pose-to-pose animation, window-edge perching with carefully scoped OS permissions, keyboard shortcuts, and notarized app packaging.
 4. **Voice:** user-approved local voice selection and more consistent on-device transcription across Macs; test interruption behavior and echo cancellation before continuous conversation.
 5. **Personal knowledge:** opt-in folder indexing with local embeddings, document provenance, and deletion propagation.
 6. **Real actions:** individually scoped file/calendar/GitHub integrations with explicit previews and execution receipts. Do not give a background model unrestricted terminal access.
