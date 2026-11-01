@@ -11,8 +11,8 @@ import {
 
 test("automatic presence closes up for conversation and rests quietly, while manual form wins", () => {
   assert.equal(resolvedForm("auto", "idle", 1000), "body");
-  assert.equal(resolvedForm("auto", "listening"), "face");
-  assert.equal(resolvedForm("auto", "idle", 100000), "face");
+  assert.equal(resolvedForm("auto", "listening"), "eyes");
+  assert.equal(resolvedForm("auto", "idle", 100000), "eyes");
   assert.equal(resolvedForm("body", "speaking", 100000), "body");
 });
 test("working, sleeping and interacting have distinct readable cartoon poses", () => {

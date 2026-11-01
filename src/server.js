@@ -1,4 +1,5 @@
 import { createServer } from "node:http";
+import { homeAvailable, assertHomeAvailable } from "./home-guard.js";
 import { Store, LocalBrain, startWorker } from "./local-core.js";
 import { existsSync } from "node:fs";
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
@@ -327,7 +328,18 @@ function formatTimestamp(iso) {
   });
 }
 
+const homeId = process.env.LAUREN_HOME_ID || null;
+assertHomeAvailable(dataDir, homeId);
 await mkdir(dataDir, { recursive: true });
+if (homeId) {
+  const watch = setInterval(() => {
+    if (!homeAvailable(dataDir, homeId)) {
+      console.log("Lauren’s USB home disconnected. Stopping core.");
+      process.kill(process.pid, "SIGTERM");
+    }
+  }, 500);
+  watch.unref();
+}
 const store = new Store(path.join(dataDir, "lauren.sqlite"));
 const brain = new LocalBrain({
   store,
@@ -791,6 +803,7 @@ async function handleApi(req, res) {
       storage: "local_json",
       apiKeyConfigured: false,
       local: true,
+      homeId,
       busy: brain.busy,
       endpoint: config.local.baseUrl,
       networkEnabled: config.local.networkEnabled,
@@ -1231,6 +1244,8 @@ async function handleStatic(req, res) {
 }
 
 const server = createServer(async (req, res) => {
+  if (!homeAvailable(dataDir, homeId))
+    return sendJson(res, 503, { error: "Reconnect Lauren’s USB home." });
   try {
     const allowed = new Set([`127.0.0.1:${port}`, `localhost:${port}`]);
     if (!allowed.has(req.headers.host))

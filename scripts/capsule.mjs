@@ -1,3 +1,4 @@
+import { assertHomeAvailable } from "../src/home-guard.js";
 import { exportCapsule, importCapsule } from "../src/capsule.js";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
@@ -13,6 +14,18 @@ try {
           await readFile(path.join(root, ".local/data-home"), "utf8")
         ).trim();
       } catch {}
+    }
+    let binding;
+    try {
+      binding = JSON.parse(
+        await readFile(path.join(root, ".local/home-binding.json"), "utf8"),
+      );
+    } catch (error) {
+      if (error.code !== "ENOENT") throw error;
+    }
+    if (binding) {
+      assertHomeAvailable(binding.directory, binding.id);
+      home = binding.directory;
     }
     console.log(
       JSON.stringify(

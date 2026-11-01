@@ -1,19 +1,19 @@
 # Lauren Local
 
-<img src="docs/images/companion-v3.png" alt="Lauren as a transparent cartoon desktop spirit" width="300">
+<img src="docs/images/companion-v4.png" alt="Lauren as a faceted desktop construct" width="300">
 
-Lauren is a local AI companion that wanders around your Mac as a small 2D character. There is no permanent chat box, window frame, or opaque panel. Her purple-haired, brown-skinned cartoon design keeps the original Lauren identity while adding an expressive full-body sprite set.
+Lauren is a local AI companion that wanders around your Mac as a small 2D character. There is no permanent chat box, window frame, or opaque panel. Her brown face and short lavender bob preserve Lauren’s identity, rendered in angular violet facets, cyan edges, and star-like grain.
 
 Built by BJ Parker while studying for a Bachelor of Science in Artificial Intelligence at UNC Charlotte. The project explores local model inference, desktop presence, tool execution, persistence, speech, scheduling, and portable assistant state.
 
 ## Desktop presence
 
 - **Drift and bounce:** borderless, transparent, floating overlay with gentle wandering, edge reflection, and drag-and-release movement. Transparent pixels let clicks reach the apps underneath.
-- **Cartoon poses:** resting, looking around, sleeping, happy, bashful, startled, smirking, peeking, playing with an orb, working at a tiny laptop, and tumbling when dragged. These are pose changes plus movement, not a fully rigged walk cycle.
-- **Face or body:** choose Automatic, Full body, or Floating face in the menu. Automatic moves to a close-up for conversation and a resting head when the pointer has been quiet. Mouse activity timing stays inside the renderer; it is not conversation or model data.
+- **Expressive poses:** resting, looking around, sleeping, happy, bashful, startled, smirking, peeking, playing with an orb, working at a tiny laptop, and tumbling when dragged. These are pose changes plus movement, not a fully rigged walk cycle.
+- **Body, face, or eyes:** choose Automatic, Full body, Floating face, or Eyes only. The local model chooses an emotion and form with its answer; hidden display tags are removed from text and speech. Automatic also gives immediate listening/thinking feedback and rests as a box with eyes after extended inactivity. Pointer timing and gaze stay inside the renderer.
 - **Click to talk:** on-device English speech recognition starts after an explicit click. After about 1.6 seconds of silence, the recognized utterance goes to the local model and Lauren speaks through Kokoro. Hovering and petting never start the microphone.
 - **Quiet controls:** right-click Lauren, or use the menu bar icon, for movement, voice, tasks, an occasional typed message, and a travel capsule. Captions appear temporarily when needed.
-- **Reduced motion:** the macOS accessibility preference pauses wandering and ambient animation.
+- **Reduced motion:** the macOS accessibility preference pauses wandering, ambient motion, and signal-glitch bursts.
 
 The local core retains saved conversations, approved memory, SQLite lists, one-time background jobs, optional public-web research, model switching, and run timings. Its model tools cannot send messages, publish, buy things, delete files, or execute shell commands.
 
@@ -30,13 +30,18 @@ npm run build:mac
 open Lauren.app
 ```
 
-Keep `Lauren.app` beside `src/` and `scripts/`. It starts the local core. The menu bar keeps the app running if the character is hidden. Quit stops the core if this app started it. A pre-existing core is reused.
+Keep `Lauren.app` beside `src/` and `scripts/`. It starts the local core. The menu bar keeps the app running if the character is hidden. Quit stops the core if this app started it. A pre-existing core is reused only when its bound home matches.
 
 Use **Open tasks & lists** from Lauren's menu or visit `http://127.0.0.1:4327/tasks.html`. The browser preview at `/companion.html` shows the character, but moving across the actual desktop and on-device microphone capture require the native app. The previous full-screen camera prototype remains available at `/` as a separate legacy display.
 
 The app is signed ad hoc for development, rather than notarized for distribution. Speech and microphone permission are requested only when you start a conversation; there is no automatic microphone activation on launch or hover. Availability of Apple's on-device speech recognizer varies by Mac setup. A typed-message option remains in the menu if speech is unavailable.
 
-## Portable assistant state
+## USB-C home and portable state
+
+To make an external drive her active home, open Lauren’s menu and choose **Make a USB-C drive Lauren’s home…**, then select an empty folder on the drive. The app stops its core, copies saved state, keeps the original as a backup, and binds startup to the drive’s identity marker. The drive’s disappearance hides Lauren and stops her core; reconnecting it at the same mount path brings her back while the host app is running. Startup with the drive absent waits instead of switching to internal memory.
+
+The Mac supplies inference and speech; the USB drive carries active memory, conversations, lists, and tasks. LM Studio remains a separate engine. Quit Lauren and eject the drive through macOS before physically removing it to protect pending writes. The disconnect behavior was tested with a simulated removal; no physical USB drive was attached during development.
+
 
 Choose **Export travel capsule…** and select a folder, including a mounted USB drive. A `.lauren.json` capsule contains approved memory, conversations, and a consistent SQLite snapshot of lists, jobs, and run history. It excludes API credentials, host-specific configuration, model weights, and logs.
 
@@ -55,7 +60,7 @@ A USB drive carries her state. It does not make an arbitrary phone, robot, telev
 
 The initial development machine is an M4 MacBook Air with 24 GB unified memory. Its 4-bit Qwen3.8 27B occupies about 15 GiB when loaded with an 8K context and one inference slot. It can work, but leaves limited memory for other apps and speech. A real two-step list-save request took **78.1 seconds** during development. This is a single end-to-end measurement, not a formal throughput benchmark.
 
-The equivalent two-step request took **21.2 seconds** with Qwen3.5 9B. The default is the already-installed 4-bit Qwen3.5 9B for everyday interaction. Choose 27B in the workspace when you prefer the larger model. Switching unloads Lauren's previous model and loads the chosen one with an 8K context and one slot. Current timings are visible in the workspace. See [validation](docs/VALIDATION.md) for what was actually tested.
+The equivalent two-step request took **21.2 seconds** with Qwen3.5 9B. The default is the already-installed 4-bit Qwen3.5 9B for everyday interaction. Choose 27B in the workspace when you prefer the larger model. Switching unloads Lauren's previous model and loads the chosen one with an 8K context and one slot. A later conversation with model-selected happy/face metadata took 40.8 seconds. Visual feedback starts immediately, but full answers remain limited by local inference speed. Current timings are visible in the workspace. See [validation](docs/VALIDATION.md) for what was actually tested.
 
 ## Local voice setup
 
@@ -87,7 +92,7 @@ npm run test:mac
 
 The JavaScript core uses Node built-ins and has no npm runtime dependencies. The full-screen camera prototype uses self-hosted MediaPipe assets; run `bash scripts/setup-vision.sh` once to download them on a fresh clone. They are already installed on the development machine and are excluded from Git. See [third-party notices](THIRD_PARTY_NOTICES.md). Models and voice weights are separate downloads governed by their own licenses.
 
-- [Cartoon art direction and exact generation prompt](docs/ART_DIRECTION.md)
+- [Construct artwork and exact selected generation prompts](docs/CONSTRUCT_ART.md)
 - [Architecture and data boundaries](docs/ARCHITECTURE.md)
 - [Validation and limitations](docs/VALIDATION.md)
 - [Portfolio and next milestones](docs/PORTFOLIO.md)

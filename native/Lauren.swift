@@ -40,6 +40,9 @@ final class LaurenApp: NSObject, NSApplicationDelegate, WKNavigationDelegate, WK
     var busy = false
     var visible = true
     var ready = false
+    var homeDisconnected = false
+    var bindingInProgress = false
+    var nextHomeCheck = 0.0
     var menuOpen = false
     var pendingBounce = false
     var observedPointer = NSEvent.mouseLocation
@@ -74,10 +77,10 @@ final class LaurenApp: NSObject, NSApplicationDelegate, WKNavigationDelegate, WK
             motion.position = CGPoint(x: screen.visibleFrame.maxX - 320, y: screen.visibleFrame.minY + 10)
             window.setFrameOrigin(motion.position)
         }
-        window.orderFrontRegardless()
+        if homeIsPresent() { window.orderFrontRegardless() }
+        else { homeDisconnected = true; visible = false; statusItem.button?.title = "✦ Lauren · USB disconnected" }
         // A transparent companion does not activate another application or take keyboard focus on launch.
-        launchServer()
-        awaitServer(attempt: 0)
+        if !homeDisconnected { launchServer(); awaitServer(attempt: 0) }
         animation = Timer.scheduledTimer(withTimeInterval: 1.0 / 30.0, repeats: true) { [weak self] _ in self?.tick() }
         RunLoop.main.add(animation!, forMode: .common)
     }
@@ -93,7 +96,7 @@ final class LaurenApp: NSObject, NSApplicationDelegate, WKNavigationDelegate, WK
         add("Send a typed message…", #selector(typedMessage))
         menu.addItem(.separator())
         let forms = NSMenu(), formParent = NSMenuItem(title: "Appearance", action: nil, keyEquivalent: "")
-        for (title, value) in [("Automatic · body / face", "auto"), ("Full body", "body"), ("Floating face", "face")] {
+        for (title, value) in [("Automatic · body / face / eyes", "auto"), ("Full body", "body"), ("Floating face", "face"), ("Eyes only", "eyes")] {
             let item = NSMenuItem(title: title, action: #selector(selectForm(_:)), keyEquivalent: "")
             item.target = self; item.representedObject = value; item.state = form == value ? .on : .off; forms.addItem(item); formItems.append(item)
         }
@@ -104,6 +107,7 @@ final class LaurenApp: NSObject, NSApplicationDelegate, WKNavigationDelegate, WK
         voiceItem.state = voice ? .on : .off
         add("Open tasks & lists", #selector(workspace))
         add("Export travel capsule…", #selector(exportTravelCapsule))
+        add("Make a USB-C drive Lauren’s home…", #selector(bindUSBHome))
         menu.addItem(.separator())
         add("Hide Lauren", #selector(hide))
         add("Quit Lauren", #selector(quit), key: "q")
@@ -119,7 +123,10 @@ final class LaurenApp: NSObject, NSApplicationDelegate, WKNavigationDelegate, WK
     }
     func screenAtPointer() -> NSScreen? { NSScreen.screens.first { $0.frame.contains(NSEvent.mouseLocation) } ?? NSScreen.main }
     func tick() {
-        guard window != nil, visible else { return }
+        guard window != nil else { return }
+        let checkTime = ProcessInfo.processInfo.systemUptime
+        if checkTime >= nextHomeCheck { updateHomeConnection(); nextHomeCheck = checkTime + 0.5 }
+        guard visible else { return }
         let now = ProcessInfo.processInfo.systemUptime, dt = min(0.05, max(0, now - lastTick)); lastTick = now
         let pointer = NSEvent.mouseLocation
         if pointer != observedPointer { pointerActiveAt = now; observedPointer = pointer }
@@ -142,7 +149,7 @@ final class LaurenApp: NSObject, NSApplicationDelegate, WKNavigationDelegate, WK
         if ready { updateHitTest(pointer) }
         if ready && now - lastReport > 0.10 {
             lastReport = now
-            js("laurenMotion", ["vx": dragging ? dragVelocity.dx : motion.velocity.dx, "vy": dragging ? dragVelocity.dy : motion.velocity.dy, "dragging": dragging, "bounce": pendingBounce, "quietFor": (now-pointerActiveAt)*1000])
+            js("laurenMotion", ["vx": dragging ? dragVelocity.dx : motion.velocity.dx, "vy": dragging ? dragVelocity.dy : motion.velocity.dy, "dragging": dragging, "bounce": pendingBounce, "quietFor": (now-pointerActiveAt)*1000, "lookX": max(-1,min(1,(pointer.x-window.frame.midX)/200)), "lookY": max(-1,min(1,(window.frame.midY-pointer.y)/200))])
             pendingBounce = false
         }
     }
@@ -158,6 +165,7 @@ final class LaurenApp: NSObject, NSApplicationDelegate, WKNavigationDelegate, WK
         }
     }
     @objc func comeHere() {
+        guard homeIsPresent() else { showError("Reconnect Lauren’s USB home to bring her back."); return }
         stopListening(deliver: false)
         visible = true; window.orderFrontRegardless()
         if let screen = screenAtPointer() {
@@ -208,6 +216,7 @@ final class LaurenApp: NSObject, NSApplicationDelegate, WKNavigationDelegate, WK
     }
     @objc func quit() { NSApp.terminate(nil) }
     @objc func typedMessage() {
+        guard homeIsPresent() else { showError("Reconnect Lauren’s USB home first."); return }
         let wasWandering = wander; wander = false; comeHere()
         let prompt = NSAlert(); prompt.messageText = "Tell Lauren"; prompt.informativeText = "A quiet alternative to speaking. The desktop stays free of a permanent text box."
         let input = NSTextField(frame: NSRect(x: 0, y: 0, width: 330, height: 26)); input.placeholderString = "Message Lauren"
@@ -215,6 +224,72 @@ final class LaurenApp: NSObject, NSApplicationDelegate, WKNavigationDelegate, WK
         NSApp.activate(ignoringOtherApps: true); prompt.window.initialFirstResponder = input
         if prompt.runModal() == .alertFirstButtonReturn && !input.stringValue.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { js("laurenHeard", input.stringValue) }
         wander = wasWandering
+    }
+    func homeBinding() -> (directory: String, id: String)? {
+        let file = project.appendingPathComponent(".local/home-binding.json")
+        guard let data = try? Data(contentsOf: file), let value = try? JSONSerialization.jsonObject(with: data) as? [String: Any], let directory = value["directory"] as? String, let id = value["id"] as? String else { return nil }
+        return (directory, id)
+    }
+    func homeIsPresent() -> Bool {
+        let file = project.appendingPathComponent(".local/home-binding.json")
+        guard FileManager.default.fileExists(atPath: file.path) else { return true }
+        guard let binding = homeBinding(), let data = try? Data(contentsOf: URL(fileURLWithPath: binding.directory).appendingPathComponent(".lauren-home.json")), let value = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else { return false }
+        return value["format"] as? String == "lauren-home" && value["version"] as? Int == 1 && value["id"] as? String == binding.id
+    }
+    func updateHomeConnection() {
+        guard !bindingInProgress else { return }
+        let available = homeIsPresent()
+        if !available && !homeDisconnected {
+            homeDisconnected = true; visible = false; ready = false
+            stopListening(deliver: false); web.loadHTMLString("", baseURL: nil); window.orderOut(nil)
+            if server?.isRunning == true { server?.terminate() }
+            statusItem.button?.title = "✦ Lauren · USB disconnected"
+        } else if available && homeDisconnected {
+            homeDisconnected = false; visible = true; ready = false
+            statusItem.button?.title = "✦ Lauren"; window.orderFrontRegardless()
+            launchServer(); awaitServer(attempt: 0)
+        }
+    }
+    @objc func bindUSBHome() {
+        guard !busy && !bindingInProgress else { showError("Let Lauren finish the current conversation before changing her home."); return }
+        guard server?.isRunning == true else { showError("Quit any separately started Lauren core and restart this app before changing her active home."); return }
+        let picker = NSOpenPanel(); picker.title = "Choose an empty folder on Lauren’s USB-C drive"
+        picker.prompt = "Use this home"; picker.canChooseDirectories = true; picker.canChooseFiles = false; picker.canCreateDirectories = true
+        picker.directoryURL = URL(fileURLWithPath: "/Volumes")
+        NSApp.activate(ignoringOtherApps: true)
+        guard picker.runModal() == .OK, let directory = picker.url else { return }
+        let values = try? directory.resourceValues(forKeys: [.volumeIsInternalKey])
+        guard values?.volumeIsInternal == false else { showError("Choose a folder on an external drive. Your internal memory home is unchanged."); return }
+        let confirm = NSAlert(); confirm.messageText = "Give Lauren this USB home?"
+        confirm.informativeText = "Her saved memory, conversations, lists, and tasks will be copied here. This becomes her active home. Unplugging the drive hides Lauren and stops her core; reconnecting it brings her back. The source copy is retained as a backup. The laptop still runs the model."
+        confirm.addButton(withTitle: "Use USB home"); confirm.addButton(withTitle: "Cancel")
+        guard confirm.runModal() == .alertFirstButtonReturn else { return }
+        bindingInProgress = true; ready = false; stopListening(deliver: false)
+        web.loadHTMLString("", baseURL: nil); statusItem.button?.title = "✦ Lauren · moving home…"
+        let task = Process(), output = Pipe(); task.executableURL = URL(fileURLWithPath: "/usr/bin/env")
+        task.arguments = ["node", project.appendingPathComponent("scripts/usb-home.mjs").path, "bind", directory.path]; task.currentDirectoryURL = project
+        var environment = ProcessInfo.processInfo.environment; environment["PATH"] = "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"; task.environment = environment
+        task.standardOutput = output; task.standardError = output
+        task.terminationHandler = { task in
+            let detail = String(data: output.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
+            DispatchQueue.main.async {
+                self.bindingInProgress = false; self.statusItem.button?.title = "✦ Lauren"
+                if task.terminationStatus != 0 { self.showError(detail) }
+                if self.homeIsPresent() { self.launchServer(); self.awaitServer(attempt: 0) }
+                else { self.updateHomeConnection() }
+            }
+        }
+        // Stop writers before taking the transfer snapshot, including background jobs.
+        let transfer = {
+            do { try task.run() } catch {
+                self.bindingInProgress = false; self.statusItem.button?.title = "✦ Lauren"
+                self.showError(error.localizedDescription); self.launchServer(); self.awaitServer(attempt: 0)
+            }
+        }
+        if let core = server, core.isRunning {
+            core.terminationHandler = { _ in DispatchQueue.main.asyncAfter(deadline: .now()+0.35) { transfer() } }
+            core.terminate()
+        } else { transfer() }
     }
     func launchServer() {
         try? FileManager.default.createDirectory(at: project.appendingPathComponent("data"), withIntermediateDirectories: true)
@@ -224,9 +299,13 @@ final class LaurenApp: NSObject, NSApplicationDelegate, WKNavigationDelegate, WK
         do { try task.run(); server = task } catch { showError(error.localizedDescription) }
     }
     func awaitServer(attempt: Int) {
-        URLSession.shared.dataTask(with: URL(string: "http://127.0.0.1:4327/api/health")!) { _, response, _ in
+        URLSession.shared.dataTask(with: URL(string: "http://127.0.0.1:4327/api/health")!) { data, response, _ in
             DispatchQueue.main.async {
-                if (response as? HTTPURLResponse)?.statusCode == 200 { self.web.load(URLRequest(url: URL(string: "http://127.0.0.1:4327/companion.html")!)) }
+                guard !self.bindingInProgress else { return }
+                guard self.homeIsPresent() else { self.updateHomeConnection(); return }
+                let payload = data.flatMap { try? JSONSerialization.jsonObject(with: $0) as? [String: Any] }
+                let actualHome = payload?["homeId"] as? String
+                if (response as? HTTPURLResponse)?.statusCode == 200 && actualHome == self.homeBinding()?.id { self.web.load(URLRequest(url: URL(string: "http://127.0.0.1:4327/companion.html")!)) }
                 else if attempt < 40 { DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { self.awaitServer(attempt: attempt + 1) } }
                 else { self.showError("The local core did not start. Check data/desktop.log.") }
             }
@@ -265,6 +344,7 @@ final class LaurenApp: NSObject, NSApplicationDelegate, WKNavigationDelegate, WK
         }
     }
     @objc func listen() {
+        guard homeIsPresent() else { showError("Reconnect Lauren’s USB home first."); return }
         if listening { stopListening(deliver: true); return }
         guard !busy else { js("laurenSpeechError", "I’m still working. Give me a moment."); return }
         SFSpeechRecognizer.requestAuthorization { auth in

@@ -1,0 +1,31 @@
+# Lauren’s expressive construct artwork
+
+Lauren keeps her warm brown face, almond violet eyes, fuller plum lips, and compact lavender bob with blunt bangs. The new rendering uses hard violet facets, cyan edge accents, star-like grain, and quick signal cuts. Her outfit is her own dark plum tech suit.
+
+The user supplied Capri references for the visual language and form changes. The reviewed gameplay reference was [Capri mod hack assist test](https://www.nexusmods.com/cyberpunk2077/videos/4537), also on [YouTube](https://www.youtube.com/watch?v=SwhTPBhZbMY). This project is an original Lauren interpretation, not an extracted game asset or an official Cyberpunk product. User reference files are not included in the repository.
+
+## Runtime forms
+
+- Body: twelve generated poses, with measured per-pose source rectangles and whole-sprite motion.
+- Face: four generated head expressions, with voice-level mouth changes and blinking.
+- Eyes: a code-drawn angular box with gaze, blink, and mood cues.
+
+The same local-model answer can include a hidden appearance marker. The server strips the marker from conversation text and speech, then returns a whitelisted emotion and form. This is an inferred display reaction, not a measure of consciousness or emotion. The model cannot turn appearance metadata into native commands. Immediate listening/thinking cues work while inference is still running. Manual form selection takes priority. Quick transition/glitch bursts respect reduced-motion preferences.
+
+Poses switch rapidly; this version does not synthesize arbitrary new artwork or use a fully rigged body. The eyes-only drawing and source crops are runtime canvas rendering; the PNG files remain the tool’s original output.
+
+## Selected generation prompts
+
+Tool: built-in `image_gen.imagegen`, transparent output. Generated assets were saved unchanged. Earlier rounded artwork remains documented in [ART_DIRECTION.md](ART_DIRECTION.md).
+
+### Body atlas
+
+Output: `public/assets/lauren-construct-atlas-v1.png`, RGBA 1448 × 1086. Reference inputs: the generated angular atlas draft and Lauren’s original face atlas. Exact final prompt:
+
+> Use case: identity-preserve and style-transfer. EDIT TARGET: Image 1, the purple angular construct 12-pose atlas. IDENTITY REFERENCE: Image 2, the original Lauren face atlas. The user likes Image 1's fractured geometric artwork and star-grain texture, but wants Lauren's OWN FACE AND HAIRSTYLE from Image 2, not Capri's hair or mask. Keep all twelve poses, the 4 columns by 3 rows, and the sharp flat neon-polygon rendering of Image 1. Replace EVERY large spiky mane with Lauren's chin-length LAVENDER BOB and straight blunt bangs, recognizable shape from Image 2. Render the bob as hard-edged lavender/violet flat facets, short angular hair-tip cuts, and fine WHITE star-speckle texture contained INSIDE the hair. Keep the haircut COMPACT and bob-shaped; no huge radial mane. Replace black mask faces with Lauren's recognizable warm DEEP-BROWN face, expressive almond VIOLET eyes, dark winged eyeliner, defined nose and fuller plum lips. Depict her features using clean sharp flat color planes, not smooth gradients or rounded cute/chibi anatomy. Retain the reference adult woman's confident face and femininity. Outfit can be her own: a dark plum high-collar asymmetrical short jacket over fitted angular tech trousers and boots, with thin cyan/violet edge panels; practical futuristic look, not Capri's costume. Slender segmented limbs and fractured graphic joints. Main style remains aggressively angular, posterized, flat 2D cutout artwork with glitter/data-textured purple hair and a little edge breakup. No 3D or glossy shading and no big baby/chibi eyes or inflated round head. Transparent background. EXACTLY 12 centered complete isolated sprites in 4 columns and 3 rows. Keep the original pose order: cross-legged hover, dangling legs, sleeping curl, curious raised hand; happy arms-out, pleased/petted, startled, confident; peek with hands/no ledge, data-orb, typing on tiny laptop/no text, tumble. All hair and limbs must fit inside their own cell with a clear transparent border. The background and every gap between sprites is genuinely transparent. No titles, labels, gridlines, shadows or props beyond the existing orb and laptop. The goal is recognizably LAUREN drawn in the fractured neon construct art language, with her original short straight-fringe bob and brown face.
+
+### Head atlas
+
+Output: `public/assets/lauren-construct-heads-v1.png`, RGBA 1254 × 1254. Reference input: the selected body atlas above. Exact final prompt:
+
+> Use case: identity-preserve. Asset type: transparent detached HEAD-ONLY expression atlas for Lauren. The reference atlas is Lauren's FINAL design: retain that recognizable adult woman's warm deep-brown face, almond-shaped violet eyes, winged eyeliner, nose and fuller plum lips, and COMPACT CHIN-LENGTH LAVENDER BOB WITH STRAIGHT BLUNT BANGS. Preserve the angular violet/lilac facets and WHITE STAR-GRAIN texture inside the bob, cyan edge accents and crisp flat posterized 2D linework. The bob silhouette must stay short and compact, no huge mane, no long hair. Make four isolated detached heads in an exact 2-column by 2-row SQUARE grid. Head and hair only: NO NECK, shoulders, torso, collar, arms or hands. Each head ends in its natural curved/angular jaw and short bob tips; no straight crop edge. Same scale, direction and identity in all four cells. Give every head at least 15 percent clear transparent margin on all sides so hair cannot cross its cell boundary. Top left: attentive, interested expression, eyes open and slight smile. Top right: calm gently closed eyes, relaxed plum lips. Bottom left: engaged talking expression, eyes open, slightly open natural mouth. Bottom right: playful pleased expression, eyebrow lifted, confident grin. Preserve Lauren's OWN human facial identity and brown skin; do not replace her face with Capri's black mask, green band, X eyes or saw teeth. Preserve the reference's angular fractured/data-like art texture; do not turn this into rounded cute chibi, plush-like drawing, a realistic portrait or glossy 3D. Background fully transparent with no haze, ground shadow, text, labels or dividers. Exactly four complete clean separated heads.

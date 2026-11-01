@@ -1,3 +1,5 @@
+import { normalizePresence, glitchAmount } from "./presence-protocol.js";
+import { drawEyes, drawSignalGlitch } from "./construct-renderer.js";
 import {
   resolvedForm,
   faceFrame,
@@ -12,16 +14,23 @@ const canvas = $("#sprite"),
   root = $("#presence");
 const native = window.webkit?.messageHandlers?.lauren;
 const atlas = new Image();
-atlas.src = "/assets/lauren-cartoon-atlas-v1.png";
+atlas.src = "/assets/lauren-construct-atlas-v1.png";
 const heads = new Image();
-heads.src = "/assets/lauren-cartoon-heads-v1.png";
+heads.src = "/assets/lauren-construct-heads-v1.png";
 let reaction = null,
   reactionUntil = 0,
   petTimer;
 let state = "idle",
   preference = localStorage.getItem("laurenForm") || "auto",
   voice = localStorage.getItem("laurenVoiceEnabled") !== "0";
-let computerQuiet = 0;
+let computerQuiet = 0,
+  gazeX = 0,
+  gazeY = 0;
+let modelPresence = normalizePresence(null),
+  presenceUntil = 0;
+let stateStartedAt = performance.now(),
+  lastForm = "body",
+  formChangedAt = -1000;
 let lastInteraction = performance.now(),
   vx = 20,
   vy = 0,
@@ -40,6 +49,7 @@ function bridge(action, extra = {}) {
   native?.postMessage({ action, ...extra });
 }
 function setState(next) {
+  if (state !== next) stateStartedAt = performance.now();
   state = next;
   root.dataset.state = next;
   bridge("activity", {
@@ -138,6 +148,8 @@ async function send(text) {
       sessionId: "desktop-local",
     });
     if (generation !== sendGeneration) return;
+    modelPresence = normalizePresence(result.presence);
+    presenceUntil = performance.now() + 25000;
     caption(result.text, voice ? 0 : 14000);
     await speak(result.speechText || result.text, generation);
   } catch (error) {
@@ -155,6 +167,8 @@ function listen() {
   }
   stopAudio();
   setState("idle");
+  modelPresence = { emotion: "curious", form: "eyes" };
+  presenceUntil = performance.now() + 2500;
   audioContext ||= new AudioContext();
   audioContext.resume().catch(() => {});
   if (native) bridge("listen");
@@ -182,6 +196,8 @@ window.laurenSpeechError = (text) => {
 };
 window.laurenMotion = (motion) => {
   computerQuiet = motion.quietFor || 0;
+  gazeX = motion.lookX || 0;
+  gazeY = motion.lookY || 0;
   vx = motion.vx || 0;
   vy = motion.vy || 0;
   dragged = Boolean(motion.dragging);
@@ -300,7 +316,22 @@ function render(now) {
   lastPaint = now;
   context.clearRect(0, 0, canvas.width, canvas.height);
   const quietFor = Math.min(now - lastInteraction, computerQuiet);
-  const form = resolvedForm(preference, state, quietFor);
+  const presence =
+    now < presenceUntil || state === "speaking"
+      ? modelPresence
+      : normalizePresence(null);
+  const form = resolvedForm(
+    preference,
+    state,
+    quietFor,
+    presence.form,
+    now - stateStartedAt,
+  );
+  if (form !== lastForm) {
+    lastForm = form;
+    formChangedAt = now;
+  }
+  root.dataset.emotion = presence.emotion;
   root.dataset.form = form;
   if (analyser) {
     analyser.getByteTimeDomainData(samples);
@@ -322,20 +353,30 @@ function render(now) {
   context.rotate(dragged ? tilt * 2 : tilt);
   context.scale(1 + impact * 0.07, 1 - impact * 0.09);
   const art = form === "face" ? heads : atlas;
-  if (art.complete && art.naturalWidth) {
+  if (form === "eyes") {
+    drawEyes(context, {
+      now,
+      state,
+      emotion: presence.emotion,
+      gazeX,
+      gazeY,
+      level,
+    });
+  } else if (art.complete && art.naturalWidth) {
     const pose = cartoonPose({
       state,
       now,
       quietFor,
       dragging: dragged,
       reaction: now < reactionUntil ? reaction : null,
+      emotion: presence.emotion,
     });
     root.dataset.pose = String(pose);
     const crop =
       form === "face"
-        ? headCrop(faceFrame(state, now, level, quietFor))
+        ? headCrop(faceFrame(state, now, level, quietFor, presence.emotion))
         : atlasCrop(pose);
-    const scale = form === "face" ? 0.86 : 1.65;
+    const scale = form === "face" ? 0.86 : Math.min(1.65, 590 / crop.w);
     const w = crop.w * scale,
       h = crop.h * scale;
     if (vx < -8 && form === "body" && ![8, 10].includes(pose))
@@ -354,6 +395,12 @@ function render(now) {
     );
   }
   context.restore();
+  drawSignalGlitch(
+    context,
+    canvas,
+    now,
+    glitchAmount(now, formChangedAt, impactAt, reducedMotion.matches),
+  );
 }
 requestAnimationFrame(render);
 bridge("ready", { form: preference, voice });

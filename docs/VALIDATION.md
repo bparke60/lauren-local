@@ -21,3 +21,13 @@ On-device microphone recognition is implemented but has not been verified with t
 - The updated app compiles and signs locally. Its transparent borderless window and cartoon body are visible; the native context menu opens and changes between body and face modes.
 - Speech now submits after a pause rather than requiring a text-box Send button. User microphone permission and a real spoken utterance remain a hands-on verification step; local synthesis was verified in the earlier build.
 - The cartoon atlas is original generated art guided by the user's supplied style reference. This version switches poses and animates the overall sprite; fully rigged limb animation and OS-window perching are future work.
+
+
+## November 1, 2026 — expressive forms and USB home
+
+- `npm test`: 58 checks pass, including whitelisted appearance metadata, display priority, reduced-motion glitches, home-marker validation, a real binding transfer with retained backup and guarded startup, and a real core subprocess stopping after its home folder was renamed without recreating it.
+- `npm run check`, `npm run build:mac`, and native motion checks pass. The desktop app visibly renders the selected faceted body and eyes-only box; the menu restores Automatic.
+- A real local Qwen3.5 9B conversation selected `{emotion: "happy", form: "face"}` with its answer in 40.8 seconds. No appearance tag leaked into the visible reply. This adds no second model call and does not establish low conversational latency.
+- Generated atlases preserve Lauren’s brown face and compact lavender bob. Source rectangles were measured for uneven sprite spacing; bodies remain pose changes rather than skeletal animation.
+- USB-home mode is implemented, including missing-home startup refusal, disappearance shutdown, reconnect handling, and a stopped-core transfer retaining the source backup. No physical drive was attached or bound, so native external-volume selection and real USB eject/reconnect remain unverified. The simulated removal test verifies core lifetime, not drive durability.
+- Real spoken microphone input remains a user verification step.

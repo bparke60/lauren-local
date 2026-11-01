@@ -56,7 +56,7 @@ export async function exportCapsule(dataDir, destination, scratchRoot) {
       format: "lauren-travel-capsule",
       version: 1,
       assistant: "Lauren",
-      appearance: "lauren-cartoon-v1",
+      appearance: "lauren-construct-v1",
       createdAt: new Date().toISOString(),
       requires: {
         compatibleHost: true,
